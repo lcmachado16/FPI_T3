@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "__mutex_base": "cpp"
+        "__mutex_base": "cpp",
+        "ostream": "cpp",
+        "__bit_reference": "cpp",
+        "iostream": "cpp",
+        "__locale": "cpp",
+        "ios": "cpp"
     }
 }
