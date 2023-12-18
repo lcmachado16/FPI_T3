@@ -22,6 +22,7 @@
         "unordered_map": "cpp",
         "vector": "cpp",
         "locale": "cpp",
-        "__node_handle": "cpp"
+        "__node_handle": "cpp",
+        "istream": "cpp"
     }
 }

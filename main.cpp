@@ -65,17 +65,30 @@ int main(int argc, char** argv)
     createTrackbar(brightness_trackbar, window_name, NULL, 300, 0);
     createTrackbar(contrast_trackbar, window_name, NULL, 300, 0);
 
+    cap >> src;
+    // check if we succeeded
+    if (src.empty()) {
+        cerr << "ERROR! blank frame grabbed\n";
+        return -1;
+    }
+
+    VideoWriter writer;
+    int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');  // select desired codec (must be available at runtime)
+    double fps = 20.0;                          // framerate of the created video stream
+    string filename = "./output.avi";             // name of the output video file
+    writer.open(filename, codec, fps, src.size());
+    // check if we succeeded
+    if (!writer.isOpened()) {
+        cerr << "Could not open the output video file for write\n";
+        return -1;
+    }
+
     for(;;)
     {
         Mat frame;
         cap >> frame;
         if( frame.empty() ) break; // end of video stream
         
-
-       
-
-
-
         Mat image;
         Mat img_gray;
         Mat img_blur; 
@@ -84,26 +97,10 @@ int main(int argc, char** argv)
         cap.read(image);
         cvtColor(image,img_gray,COLOR_BGR2GRAY);
 
-
-        //blur( img_gray, detected_edges, Size(3,3) );
-        //Canny( detected_edges, detected_edges, lowThreshold, lowThreshold*const_ratio, kernel_size );
-
-       // imshow("CHOMSKY", detected_edges);
-
-
-        // cv::Mat resized;
-        // cv::resize(frame, resized, cv::Size(800, 600));
-        // cv::imshow("resized",resized);
-
-
-        // image.convertTo(new_image, -1, alpha, beta);
-
-
-
         Mat output_image = image; 
         
-
         //cv::rotate(image, output_image, cv::ROTATE_90_CLOCKWISE);
+        output_image = is_gray ? img_gray : output_image ;
 
         if(is_rotated) {
             rotate_90(output_image);
@@ -112,7 +109,7 @@ int main(int argc, char** argv)
         if (is_gaussian_blur){
             GaussianBlur(output_image, output_image, Size(9,9),0,0);
         }
-        output_image = is_gray ? img_gray : output_image ;
+ 
         output_image = is_hflip ? hflip(output_image) : output_image ;
         output_image = is_vflip ? vflip(output_image) : output_image ;
         if (is_negative) {
@@ -159,13 +156,26 @@ int main(int argc, char** argv)
             cv::resize(output_image, resized_frame, cv::Size(new_w, new_h));
             
             imshow(window_name, resized_frame);
+          
         }else{
-            
-        imshow(window_name, output_image);
-
+            imshow(window_name, output_image);
         }
 
-        int pressed_key = cv::waitKey(1);
+        if (!cap.read(src)) {
+            cerr << "ERROR! blank frame grabbed\n";
+            break;
+        }
+        // encode the frame into the videofile stream
+   
+        if(is_hflip){
+            hflip(frame);
+        }
+
+        writer.write(frame);
+    
+
+
+        int pressed_key = cv::waitKey(2);
         if (pressed_key == 27) break;
         else if (pressed_key == 'g' || pressed_key == 'G') {
             cout << "G was pressed " << endl;
@@ -218,23 +228,25 @@ int main(int argc, char** argv)
 
  
       
-
+ 
    
     }
     cap.release();
+    writer.release();
+    cv::destroyAllWindows();
     return 0;
 }
 
 
 /* 
  * TO DO:
- * [ ] - Gaussian Blur 
- * [ ] - Canny 
- * [ ] - Sobel 
- * [ ] - convertTo
+ * [ X ] - Gaussian Blur 
+ * [ X] - Canny 
+ * [ X ] - Sobel 
+ * [ X ] - convertTo :: Brilho, Contraste
  * [ X ] - converter para tons de cinza 
- * [ ] - Redimensionamento de video 
- * [ ] - Rotacao de 90 graus 
- * [ ] - Espelhamento de vídeo (horizontal e vertical)
- *
+ * [ X ] - Redimensionamento de video 
+ * [ X ] - Rotacao de 90 graus 
+ * [ X ] - Espelhamento de vídeo (horizontal e vertical)
+ * [ ] - Salvar Video
 */
