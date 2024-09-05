@@ -1,2 +1,2 @@
 # FPI_T3
-# IA_T1
+Trabalho 3 da disciplina de Fundamentos de Processamento de Imagens - UFRGS.
